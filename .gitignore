@@ -5,3 +5,5 @@ dist
 .cache
 /index.html
 /book
+output/
+.spago/
