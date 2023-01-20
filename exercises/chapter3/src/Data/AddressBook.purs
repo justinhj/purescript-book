@@ -4,8 +4,9 @@ module Data.AddressBook where
 import Prelude
 
 import Control.Plus (empty)
-import Data.List (List(..), filter, head)
-import Data.Maybe (Maybe)
+import Data.List (List(..), filter, head, nubByEq)
+import Data.Maybe (isJust, Maybe)
+
 -- ANCHOR_END: imports
 
 -- ANCHOR: Address
@@ -68,3 +69,18 @@ findEntry firstName lastName = head <<< filter filterEntry
   filterEntry :: Entry -> Boolean
   filterEntry entry = entry.firstName == firstName && entry.lastName == lastName
 
+findEntryByStreet :: String -> AddressBook -> Maybe Entry
+findEntryByStreet street = head <<< filter filterByStreet
+  where
+    filterByStreet :: Entry -> Boolean
+    filterByStreet entry = entry.address.street == street
+    
+isInBook :: String -> String -> AddressBook -> Boolean
+isInBook f l book =
+  isJust $ findEntry f l book
+
+removeDuplicates :: AddressBook -> AddressBook
+removeDuplicates = nubByEq cmp
+  where
+    cmp :: Entry -> Entry -> Boolean
+    cmp e1 e2 = e1.firstName == e2.firstName
