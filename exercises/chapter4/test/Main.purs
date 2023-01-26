@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Test.Examples
-import Test.MySolutions (isEven, countEven)
+import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors)
 import Data.Array (sort)
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..))
@@ -54,7 +54,6 @@ main =
         test "[0, 1, 19, 20] has 2" do
           Assert.equal 2
             $ countEven [ 0, 1, 19, 20 ]
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Maps, Infix Operators, and Filtering" do
       suite "Exercise - squared" do
         test "Do nothing with empty array" do
@@ -136,6 +135,7 @@ main =
         primeFactorsTest 6 [3, 2]
         primeFactorsTest 18 [3, 3, 2]
         primeFactorsTest 210 [ 7, 5, 3, 2 ]
+    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Folds and Tail Recursion" do
       test "Exercise - allTrue" do
         assert "all elements true"
