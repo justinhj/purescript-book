@@ -2,9 +2,9 @@ module Test.MySolutions where
 
 import Control.Alternative (guard)
 import Control.Bind (bind, discard, pure)
-import Data.Array (cons, drop, filter, head, index, length, reverse, (..))
+import Data.Array (cons, drop, filter, head, index, length, reverse, (..), foldl)
 import Data.Maybe (Maybe(..))
-import Prelude (div, map, mod, ($), (&&), (*), (+), (<), (==), (>=))
+import Prelude (div, map, mod, ($), (&&), (*), (-), (+), (<), (==), (>=), (<=))
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
@@ -71,8 +71,32 @@ helper primes i remain acc =
           helper primes i (remain `div` n) (cons n acc)
         else
           helper primes (i + 1) remain acc 
-      Nothing -> reverse acc
+      Nothing -> acc
     
 primeFactors :: Int -> Array Int
-primeFactors n = helper c 0 n []
+primeFactors n = reverse $ helper c 0 n []
   where c = candidates n
+
+allTrue :: Array Boolean -> Boolean
+allTrue xs = foldl (\x1 x2 -> x1 && x2) true xs
+
+fib :: Int -> Int
+fib n =
+  if n == 0 then
+    0
+  else if n == 1 then
+    1
+  else
+    fib (n - 1) + fib (n - 2)
+
+fibH :: Int -> Int -> Int -> Int
+fibH a b n = 
+  if n == 0 then 
+    a + b
+  else
+    fibH (a + b) a (n - 1)
+
+fibTailRec :: Int -> Int
+fibTailRec 0 = 0
+fibTailRec 1 = 1
+fibTailRec n = fibH 1 0 (n - 2) 

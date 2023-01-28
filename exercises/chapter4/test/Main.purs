@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Test.Examples
-import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors)
+import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec)
 import Data.Array (sort)
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..))
@@ -135,7 +135,6 @@ main =
         primeFactorsTest 6 [3, 2]
         primeFactorsTest 18 [3, 3, 2]
         primeFactorsTest 210 [ 7, 5, 3, 2 ]
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Folds and Tail Recursion" do
       test "Exercise - allTrue" do
         assert "all elements true"
@@ -152,6 +151,7 @@ main =
         test "Verify 44" do
           Assert.equal 701408733
             $ fibTailRec 44
+    {-  Move this block comment starting point to enable more tests
       suite "Exercise - reverse" do
         test "Empty Array" do
           Assert.equal ([] :: Array Int)
