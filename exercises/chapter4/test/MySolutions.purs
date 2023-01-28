@@ -2,45 +2,45 @@ module Test.MySolutions where
 
 import Control.Alternative (guard)
 import Control.Bind (bind, discard, pure)
-import Data.Array (cons, drop, filter, head, index, length, reverse, (..), foldl)
+import Data.Array (cons, drop, filter, foldl, head, index, length, (..)) as Array
 import Data.Maybe (Maybe(..))
-import Prelude (div, map, mod, ($), (&&), (*), (-), (+), (<), (==), (>=), (<=))
+import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=))
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
 
 countEven :: Array Int -> Int
 countEven elements = 
-  case head elements of
+  case Array.head elements of
     Just n -> 
       if isEven n then
         1 + next
       else
         next
         where 
-          next = (countEven $ drop 1 elements)
+          next = (countEven $ Array.drop 1 elements)
     Nothing -> 0
 
 squared :: Array Number -> Array Number
 squared ns = map (\x -> x * x) ns
 
 keepNonNegative :: Array Number -> Array Number
-keepNonNegative ns = filter (\x -> x >= 0.0) ns
+keepNonNegative ns = Array.filter (\x -> x >= 0.0) ns
 
-infix 8 filter as <$?>
+infix 8 Array.filter as <$?>
 
 keepNonNegativeRewrite :: Array Number -> Array Number
 keepNonNegativeRewrite ns = (\x -> x >= 0.0) <$?> ns
 
 factors :: Int -> Array (Array Int)
 factors n = do
-  i <- 1 .. n
-  j <- 1 .. n 
+  i <- 1 Array... n
+  j <- 1 Array... n 
   guard $ i * j == n
   pure [i, j]
 
 isPrime :: Int -> Boolean
-isPrime n = length (factors n) == 2
+isPrime n = Array.length (factors n) == 2
 
 cartesianProduct :: ∀ a. Array a -> Array a -> Array (Array a)
 cartesianProduct a b = do
@@ -50,9 +50,9 @@ cartesianProduct a b = do
 
 triples :: Int -> Array (Array Int)
 triples n = do
-  a <- 1 .. n
-  b <- 1 .. n
-  c <- 1 .. n
+  a <- 1 Array... n
+  b <- 1 Array... n
+  c <- 1 Array... n
   guard $ (a*a) + (b*b) == (c*c) && a < b
   pure [a,b,c]
 
@@ -61,14 +61,14 @@ candidates :: Int -> Array Int
 candidates n = if n < 2 then
     []
   else
-    filter isPrime (2 .. n)
+    Array.filter isPrime (2 Array... n)
 
 helper :: Array Int -> Int -> Int -> Array Int -> Array Int
 helper primes i remain acc =
-  case index primes i of
+  case Array.index primes i of
       Just n -> 
         if remain `mod` n == 0 then
-          helper primes i (remain `div` n) (cons n acc)
+          helper primes i (remain `div` n) (Array.cons n acc)
         else
           helper primes (i + 1) remain acc 
       Nothing -> acc
@@ -78,7 +78,7 @@ primeFactors n = reverse $ helper c 0 n []
   where c = candidates n
 
 allTrue :: Array Boolean -> Boolean
-allTrue xs = foldl (\x1 x2 -> x1 && x2) true xs
+allTrue xs = Array.foldl (\x1 x2 -> x1 && x2) true xs
 
 fib :: Int -> Int
 fib n =
@@ -89,14 +89,17 @@ fib n =
   else
     fib (n - 1) + fib (n - 2)
 
-fibH :: Int -> Int -> Int -> Int
-fibH a b n = 
-  if n == 0 then 
-    a + b
-  else
-    fibH (a + b) a (n - 1)
-
 fibTailRec :: Int -> Int
 fibTailRec 0 = 0
 fibTailRec 1 = 1
 fibTailRec n = fibH 1 0 (n - 2) 
+  where
+    fibH :: Int -> Int -> Int -> Int
+    fibH a b i = 
+      if i == 0 then 
+        a + b
+      else
+        fibH (a + b) a (i - 1)
+
+reverse :: ∀ a. Array a -> Array a
+reverse xs = Array.foldl (\acc n -> Array.cons n acc) [] xs
