@@ -5,6 +5,8 @@ import Control.Bind (bind, discard, pure)
 import Data.Array (cons, drop, filter, foldl, head, index, length, (..)) as Array
 import Data.Maybe (Maybe(..))
 import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=))
+import Control.Semigroupoid ((<<<), (>>>))
+import Debug (spy)
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
@@ -80,6 +82,28 @@ primeFactors n = reverse $ helper c 0 n []
 allTrue :: Array Boolean -> Boolean
 allTrue xs = Array.foldl (\x1 x2 -> x1 && x2) true xs
 
+fibWithSpy :: Int -> Int
+fibWithSpy n =
+  if n == 0 then
+    0
+  else if n == 1 then
+    1
+  else
+    fibWithSpy ((spy "n-1" n) - 1) + fibWithSpy ((spy "n-2") n - 2)
+
+fibTailRecWithSpy :: Int -> Int
+fibTailRecWithSpy 0 = 0
+fibTailRecWithSpy 1 = 1
+fibTailRecWithSpy n = fibH 1 0 (n - 2) 
+  where
+    fibH :: Int -> Int -> Int -> Int
+    fibH a b i = 
+      if i == 0 then 
+        a + b
+      else
+        fibH (a + b) a ((spy "i" i) - 1)
+
+-- Same as above with spy removed
 fib :: Int -> Int
 fib n =
   if n == 0 then
