@@ -1,12 +1,14 @@
 module Test.MySolutions where
 
-import Control.Alternative (guard)
-import Control.Bind (bind, discard, pure)
-import Data.Array (cons, drop, filter, foldl, head, index, length, (..), (:)) as Array
-import Data.Maybe (Maybe(..))
-import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=), not)
-import Debug (spy)
 import Data.Path
+import Control.Alternative (guard)
+import Control.Bind (bind, discard, pure, join)
+import Data.Array (cons, drop, filter, foldl, head, index, length, (..), (:), find, last) as Array
+import Data.Maybe (Maybe(..), isJust)
+import Data.String (Pattern(..), split)
+import Debug (spy)
+import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=), not, (>))
+import Data.Tuple (fst,snd,Tuple(..))
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
@@ -133,6 +135,63 @@ allFiles file = file Array.: do
   child <- ls file
   allFiles child
 
+allMatches :: Path -> Path -> String -> Array (Tuple Path Path)
+allMatches path parent name = 
+  if fileName' path == name then
+    Array.cons (Tuple path parent) rest
+  else
+    rest
+  where rest = do
+                 element <- ls path
+                 allMatches element path name
+
+allMatch' :: Path -> Path -> String -> Array (Tuple Path Path)
+allMatch' path parent name = Array.cons (Tuple path parent) do
+  element <- ls path
+  allMatch' element path name
+
+allMatch :: Path -> String -> Array Path
+allMatch p n = Array.filter (\x -> fileName' x == n) (allFiles p)
+
+whereIs :: Path -> String -> Maybe Path
+whereIs p n = map snd (Array.last $ allMatches p p n)
+
 onlyFiles :: Path -> Array Path
 onlyFiles p = Array.filter (not isDirectory) files
   where files = allFiles p
+
+fileName' :: Path -> String
+fileName' (File name _) = 
+  case lp of
+      Just n -> n
+      Nothing -> "" -- should be an error?
+    where lp = Array.last $ split (Pattern "/") name
+fileName' (Directory name _) = name
+
+whereIs''' :: Path -> String -> Maybe Path
+whereIs''' path@(File _ _) searchName = 
+  if fn == searchName then
+    Just path
+  else
+    Nothing
+      where fn = fileName' path
+whereIs''' path@(Directory name files) searchName = 
+  if Array.length matches > 0 then
+    Nothing
+    else
+    Nothing
+    where matches = []
+        -- entry <- ls path
+        -- guard $ fileName' 
+
+whereIs'' :: Path -> String -> Maybe Path
+whereIs'' p n = 
+   if Array.length (Array.filter (\x -> filename x == n) files) > 0 then 
+     Just p
+   else
+     join $ Array.find isJust (map (\x -> whereIs'' x n) dirs) 
+      where 
+        contents = ls p
+        files = contents -- Array.filter (not isDirectory) contents
+        dirs = Array.filter isDirectory contents
+

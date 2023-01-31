@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Test.Examples
-import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,reverse,onlyFiles)
+import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,reverse,onlyFiles,whereIs)
 import Data.Array (sort)
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..))
@@ -174,7 +174,6 @@ main =
           ]
           $ map filename
           $ onlyFiles root
-    {-  Move this block comment starting point to enable more tests
       suite "Exercise - whereIs" do
         test "locates a file"
           $ Assert.equal (Just ("/bin/"))
@@ -184,6 +183,7 @@ main =
           $ Assert.equal (Nothing)
           $ map filename
           $ whereIs root "cat"
+    {-  Move this block comment starting point to enable more tests
       suite "Exercise - largestSmallest" do
         let
           testls :: String -> Array String -> Path -> TestSuite
