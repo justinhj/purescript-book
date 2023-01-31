@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Test.Examples
-import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,reverse)
+import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,reverse,onlyFiles)
 import Data.Array (sort)
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..))
@@ -161,7 +161,6 @@ main =
         test "More than 1 element" do
           Assert.equal [ 3, 2, 1 ]
             $ reverse [ 1, 2, 3 ]
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Filesystem" do
       test "Exercise - onlyFiles" do
         Assert.equal
@@ -175,6 +174,7 @@ main =
           ]
           $ map filename
           $ onlyFiles root
+    {-  Move this block comment starting point to enable more tests
       suite "Exercise - whereIs" do
         test "locates a file"
           $ Assert.equal (Just ("/bin/"))

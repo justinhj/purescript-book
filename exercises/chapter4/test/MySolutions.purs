@@ -2,11 +2,11 @@ module Test.MySolutions where
 
 import Control.Alternative (guard)
 import Control.Bind (bind, discard, pure)
-import Data.Array (cons, drop, filter, foldl, head, index, length, (..)) as Array
+import Data.Array (cons, drop, filter, foldl, head, index, length, (..), (:)) as Array
 import Data.Maybe (Maybe(..))
-import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=))
-import Control.Semigroupoid ((<<<), (>>>))
+import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=), not)
 import Debug (spy)
+import Data.Path
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
@@ -127,3 +127,12 @@ fibTailRec n = fibH 1 0 (n - 2)
 
 reverse :: ∀ a. Array a -> Array a
 reverse xs = Array.foldl (\acc n -> Array.cons n acc) [] xs
+
+allFiles :: Path -> Array Path
+allFiles file = file Array.: do
+  child <- ls file
+  allFiles child
+
+onlyFiles :: Path -> Array Path
+onlyFiles p = Array.filter (not isDirectory) files
+  where files = allFiles p
