@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..), isJust)
 import Data.String (Pattern(..), split)
 import Debug (spy)
 import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=), not, (>))
-import Data.Tuple (fst,snd,Tuple(..))
+import Data.Tuple (snd,Tuple(..))
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
@@ -168,19 +168,19 @@ fileName' (File name _) =
     where lp = Array.last $ split (Pattern "/") name
 fileName' (Directory name _) = name
 
-whereIs''' :: Path -> String -> Maybe Path
-whereIs''' path@(File _ _) searchName = 
-  if fn == searchName then
-    Just path
-  else
-    Nothing
-      where fn = fileName' path
-whereIs''' path@(Directory name files) searchName = 
-  if Array.length matches > 0 then
-    Nothing
-    else
-    Nothing
-    where matches = []
+-- whereIs''' :: Path -> String -> Maybe Path
+-- whereIs''' path@(File _ _) searchName = 
+--   if fn == searchName then
+--     Just path
+--   else
+--     Nothing
+--       where fn = fileName' path
+-- whereIs''' path@(Directory name files) searchName = 
+--   if Array.length matches > 0 then
+--     Nothing
+--     else
+--     Nothing
+--     where matches = []
         -- entry <- ls path
         -- guard $ fileName' 
 
