@@ -3,48 +3,49 @@ module Test.MySolutions where
 import Data.Path
 import Control.Alternative (guard)
 import Control.Bind (bind, discard, pure, join)
-import Data.Array (cons, drop, filter, foldl, head, index, length, (..), (:), find, last) as Array
+import Data.Array (cons, drop, filter, foldl, head, tail, index, length, (..), (:), find, last, reverse, sortWith)
 import Data.Maybe (Maybe(..), isJust)
 import Data.String (Pattern(..), split)
 import Debug (spy)
 import Prelude (div, map, mod, ($), (&&), (*), (+), (-), (<), (==), (>=), not, (>))
 import Data.Tuple (snd,Tuple(..))
+import Control.Semigroupoid ((<<<))
 
 isEven :: Int -> Boolean
 isEven n = n `mod` 2 == 0
 
 countEven :: Array Int -> Int
 countEven elements = 
-  case Array.head elements of
+  case head elements of
     Just n -> 
       if isEven n then
         1 + next
       else
         next
         where 
-          next = (countEven $ Array.drop 1 elements)
+          next = (countEven $ drop 1 elements)
     Nothing -> 0
 
 squared :: Array Number -> Array Number
 squared ns = map (\x -> x * x) ns
 
 keepNonNegative :: Array Number -> Array Number
-keepNonNegative ns = Array.filter (\x -> x >= 0.0) ns
+keepNonNegative ns = filter (\x -> x >= 0.0) ns
 
-infix 8 Array.filter as <$?>
+infix 8 filter as <$?>
 
 keepNonNegativeRewrite :: Array Number -> Array Number
 keepNonNegativeRewrite ns = (\x -> x >= 0.0) <$?> ns
 
 factors :: Int -> Array (Array Int)
 factors n = do
-  i <- 1 Array... n
-  j <- 1 Array... n 
+  i <- 1 .. n
+  j <- 1 .. n 
   guard $ i * j == n
   pure [i, j]
 
 isPrime :: Int -> Boolean
-isPrime n = Array.length (factors n) == 2
+isPrime n = length (factors n) == 2
 
 cartesianProduct :: ∀ a. Array a -> Array a -> Array (Array a)
 cartesianProduct a b = do
@@ -54,9 +55,9 @@ cartesianProduct a b = do
 
 triples :: Int -> Array (Array Int)
 triples n = do
-  a <- 1 Array... n
-  b <- 1 Array... n
-  c <- 1 Array... n
+  a <- 1 .. n
+  b <- 1 .. n
+  c <- 1 .. n
   guard $ (a*a) + (b*b) == (c*c) && a < b
   pure [a,b,c]
 
@@ -65,14 +66,14 @@ candidates :: Int -> Array Int
 candidates n = if n < 2 then
     []
   else
-    Array.filter isPrime (2 Array... n)
+    filter isPrime (2 .. n)
 
 helper :: Array Int -> Int -> Int -> Array Int -> Array Int
 helper primes i remain acc =
-  case Array.index primes i of
+  case index primes i of
       Just n -> 
         if remain `mod` n == 0 then
-          helper primes i (remain `div` n) (Array.cons n acc)
+          helper primes i (remain `div` n) (cons n acc)
         else
           helper primes (i + 1) remain acc 
       Nothing -> acc
@@ -82,7 +83,7 @@ primeFactors n = reverse $ helper c 0 n []
   where c = candidates n
 
 allTrue :: Array Boolean -> Boolean
-allTrue xs = Array.foldl (\x1 x2 -> x1 && x2) true xs
+allTrue xs = foldl (\x1 x2 -> x1 && x2) true xs
 
 fibWithSpy :: Int -> Int
 fibWithSpy n =
@@ -127,18 +128,18 @@ fibTailRec n = fibH 1 0 (n - 2)
       else
         fibH (a + b) a (i - 1)
 
-reverse :: ∀ a. Array a -> Array a
-reverse xs = Array.foldl (\acc n -> Array.cons n acc) [] xs
+-- reverse :: ∀ a. Array a -> Array a
+-- reverse xs = foldl (\acc n -> cons n acc) [] xs
 
 allFiles :: Path -> Array Path
-allFiles file = file Array.: do
+allFiles file = file : do
   child <- ls file
   allFiles child
 
 allMatches :: Path -> Path -> String -> Array (Tuple Path Path)
 allMatches path parent name = 
   if fileName' path == name then
-    Array.cons (Tuple path parent) rest
+    cons (Tuple path parent) rest
   else
     rest
   where rest = do
@@ -146,18 +147,18 @@ allMatches path parent name =
                  allMatches element path name
 
 allMatch' :: Path -> Path -> String -> Array (Tuple Path Path)
-allMatch' path parent name = Array.cons (Tuple path parent) do
+allMatch' path parent name = cons (Tuple path parent) do
   element <- ls path
   allMatch' element path name
 
 allMatch :: Path -> String -> Array Path
-allMatch p n = Array.filter (\x -> fileName' x == n) (allFiles p)
+allMatch p n = filter (\x -> fileName' x == n) (allFiles p)
 
 whereIs :: Path -> String -> Maybe Path
-whereIs p n = map snd (Array.last $ allMatches p p n)
+whereIs p n = map snd (last $ allMatches p p n)
 
 onlyFiles :: Path -> Array Path
-onlyFiles p = Array.filter (not isDirectory) files
+onlyFiles p = filter (not isDirectory) files
   where files = allFiles p
 
 fileName' :: Path -> String
@@ -165,33 +166,40 @@ fileName' (File name _) =
   case lp of
       Just n -> n
       Nothing -> "" -- should be an error?
-    where lp = Array.last $ split (Pattern "/") name
+    where lp = last $ split (Pattern "/") name
 fileName' (Directory name _) = name
 
--- whereIs''' :: Path -> String -> Maybe Path
--- whereIs''' path@(File _ _) searchName = 
---   if fn == searchName then
---     Just path
---   else
---     Nothing
---       where fn = fileName' path
--- whereIs''' path@(Directory name files) searchName = 
---   if Array.length matches > 0 then
---     Nothing
---     else
---     Nothing
---     where matches = []
-        -- entry <- ls path
-        -- guard $ fileName' 
+-- maxFile :: Array Path -> Int -> Maybe Path -> Maybe Path
+-- maxFile paths maxSize maxFile =
+--       case head paths of
+--         first@(Just (File _ size)) ->
+--           if size > maxSize then
+--             case tail paths of
+--               Just [] -> head
+--               Just rest -> (maxFile rest size first)
+--           else
+--             case tail paths of
+--               [] -> maxFile
+--               rest -> maxFile rest maxSize maxFile
 
-whereIs'' :: Path -> String -> Maybe Path
-whereIs'' p n = 
-   if Array.length (Array.filter (\x -> filename x == n) files) > 0 then 
-     Just p
-   else
-     join $ Array.find isJust (map (\x -> whereIs'' x n) dirs) 
-      where 
-        contents = ls p
-        files = contents -- Array.filter (not isDirectory) contents
-        dirs = Array.filter isDirectory contents
+
+largestSmallest :: Path -> Array Path
+largestSmallest file@(File _ _) = [file]
+largestSmallest path = 
+  let
+      off = filter (not <<< isDirectory) (allFiles path)
+      min = sortWith size off
+      max = reverse min
+      hmin = head min
+      hmax = head max
+    in
+      case [hmin,hmax] of
+          [Just a, Just b] -> 
+            if filename a == filename b then
+              [a]
+            else
+              [a,b]
+          [Nothing, Just a] -> [a]
+          [Just a, Nothing] -> [a]
+          _ -> []
 

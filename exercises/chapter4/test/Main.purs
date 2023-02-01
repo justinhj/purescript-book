@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Test.Examples
-import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,reverse,onlyFiles,whereIs)
+import Test.MySolutions (isEven, countEven, squared, keepNonNegative,(<$?>),keepNonNegativeRewrite,isPrime,cartesianProduct,triples,primeFactors,allTrue,fibTailRec,onlyFiles,whereIs,largestSmallest)
 import Data.Array (sort)
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..))
@@ -151,16 +151,16 @@ main =
         test "Verify 44" do
           Assert.equal 701408733
             $ fibTailRec 44
-      suite "Exercise - reverse" do
-        test "Empty Array" do
-          Assert.equal ([] :: Array Int)
-            $ reverse []
-        test "Singleton Array" do
-          Assert.equal [ 1 ]
-            $ reverse [ 1 ]
-        test "More than 1 element" do
-          Assert.equal [ 3, 2, 1 ]
-            $ reverse [ 1, 2, 3 ]
+      -- suite "Exercise - reverse" do
+      --   test "Empty Array" do
+      --     Assert.equal ([] :: Array Int)
+      --       $ reverse []
+        -- test "Singleton Array" do
+        --   Assert.equal [ 1 ]
+        --     $ reverse [ 1 ]
+        -- test "More than 1 element" do
+        --   Assert.equal [ 3, 2, 1 ]
+        --     $ reverse [ 1, 2, 3 ]
     suite "Exercise Group - Filesystem" do
       test "Exercise - onlyFiles" do
         Assert.equal
@@ -183,7 +183,6 @@ main =
           $ Assert.equal (Nothing)
           $ map filename
           $ whereIs root "cat"
-    {-  Move this block comment starting point to enable more tests
       suite "Exercise - largestSmallest" do
         let
           testls :: String -> Array String -> Path -> TestSuite
@@ -200,6 +199,7 @@ main =
         testls "works for a directory with one file" ["/etc/hosts"] oneFileDir
         testls "works for an empty directory" [] emptyDir
 
+    {-  Move this block comment starting point to enable more tests
 -}
 runChapterExamples :: TestSuite
 runChapterExamples =
