@@ -1,7 +1,6 @@
 module Test.Main where
 
 import Prelude hiding (gcd)
-import Test.MySolutions
 
 import ChapterExamples (Amp(..), current, fromString, gcd, gcdV2, isEmpty, livesInLA, lzs, partialFunction, showPerson, showPersonV2, sortPair, takeFive, toString, unknownPerson, Volt(..))
 import Data.Int (round)
@@ -9,6 +8,7 @@ import Data.Maybe (Maybe(Just, Nothing))
 import Data.Person (Person)
 import Data.Picture (Shape(..), Picture, getCenter, origin)
 import Effect (Effect)
+import Test.MySolutions (binomial, factorial)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Test.Unit.Main (runTest)
@@ -33,7 +33,6 @@ main :: Effect Unit
 main =
   runTest do
     runChapterExamples
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Simple Pattern Matching" do
       test "Exercise - factorial" do
         Assert.equal 1
@@ -55,6 +54,7 @@ main =
           $ binomial 10 5
         Assert.equal 1
           $ binomial 5 5
+    {-  Move this block comment starting point to enable more tests
       test "Exercise - pascal" do
         Assert.equal 1
           $ pascal 10 0
