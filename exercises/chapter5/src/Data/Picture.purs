@@ -28,6 +28,7 @@ data Shape
   | Rectangle Point Number Number
   | Line Point Point
   | Text Point String
+  | Clipped Picture Point Number Number
 -- ANCHOR_END: Shape
 
 -- ANCHOR: showShape
@@ -40,6 +41,8 @@ showShape (Line start end) =
   "Line [start: " <> showPoint start <> ", end: " <> showPoint end <> "]"
 showShape (Text loc text) =
   "Text [location: " <> showPoint loc <> ", text: " <> show text <> "]"
+showShape (Clipped picture origin w h) =
+  "Clipped [start: " <> showPoint origin <> ", width: " <> show w <> ", height: " <> show h <> "]"
 -- ANCHOR_END: showShape
 
 -- ANCHOR: exampleLine
@@ -68,6 +71,7 @@ getCenter (Circle c r) = c
 getCenter (Rectangle c w h) = c
 getCenter (Line s e) = (s + e) * {x: 0.5, y: 0.5}
 getCenter (Text loc text) = loc
+getCenter (Clipped _ loc _ _) = loc
 
 -- ANCHOR: Picture
 type Picture = Array Shape
@@ -120,6 +124,12 @@ shapeBounds (Text { x, y } _) =
   , bottom: y
   , right:  x
   }
+shapeBounds (Clipped picture { x, y } w h) =
+  intersect { top:    y - h / 2.0
+    , left:   x - w / 2.0
+    , bottom: y + h / 2.0
+    , right:  x + w / 2.0
+    } (bounds picture)
 
 union :: Bounds -> Bounds -> Bounds
 union b1 b2 =

@@ -6,9 +6,9 @@ import ChapterExamples (Amp(..), current, fromString, gcd, gcdV2, isEmpty, lives
 import Data.Int (round)
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Person (Person)
-import Data.Picture (Shape(..), Picture, getCenter, origin)
+import Data.Picture (Picture, Shape(..), getCenter, origin, shapeBounds)
 import Effect (Effect)
-import Test.MySolutions (binomial, factorial)
+import Test.MySolutions (Watt(..), area, binomial, calculateWattage, circleAtOrigin, doubleScaleAndCenter, factorial, fromSingleton, pascal, sameCity, shapeText)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Test.Unit.Main (runTest)
@@ -54,7 +54,6 @@ main =
           $ binomial 10 5
         Assert.equal 1
           $ binomial 5 5
-    {-  Move this block comment starting point to enable more tests
       test "Exercise - pascal" do
         Assert.equal 1
           $ pascal 10 0
@@ -132,7 +131,6 @@ main =
         Assert.equal { top: 2.0, left: 2.0, right: 7.0, bottom: 7.0 }
           $ shapeBounds (Clipped samplePicture { x: 5.0, y: 5.0 } 6.0 6.0)
 
--}
 runChapterExamples :: TestSuite
 runChapterExamples =
   suite "Chapter Examples" do
