@@ -91,7 +91,6 @@ main =
           Assert.equal (NonEmpty 10 [ 20, 30 ])
             $ map (_ * 10)
             $ NonEmpty 1 [ 2, 3 ]
-    {-  Move this block comment starting point to enable more tests
       suite "Ord Extended" do
         -- Type annotation necessary to ensure there is an Ord instance for inner type (Int in this case)
         test "infinity equals infinity" do
@@ -142,6 +141,7 @@ main =
           Assert.equal "123"
             $ foldMap (\x -> show x)
             $ OneMore 1 (2 : 3 : Nil)
+    {-  Move this block comment starting point to enable more tests
       let
         withDups =
           [ Circle (Point {x: 1.0, y: 2.0}) 3.0

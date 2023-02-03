@@ -3,8 +3,11 @@ module Test.MySolutions where
 import Prelude
 
 import Data.Array (concat, cons)
+import Data.Foldable (class Foldable, foldMap, foldl, foldr)
 import Data.Generic.Rep (class Generic)
 import Data.Newtype (class Newtype, wrap, over2)
+import Data.Ord (Ordering(..))
+import Data.Semigroup (append)
 import Data.Show.Generic (genericShow)
 
 newtype Point
@@ -66,3 +69,27 @@ instance eqNonEmpty :: Eq a => Eq (NonEmpty a) where
   eq (NonEmpty a b) (NonEmpty c d) = a == c && b == d
 
 derive instance functorNonEmpty :: Functor NonEmpty
+
+data Extended a = Infinite | Finite a
+
+derive instance eqExtended :: Eq a => Eq (Extended a)
+
+instance ordExtended :: Ord a => Ord (Extended a) where
+  compare Infinite (Finite _) = GT
+  compare (Finite _) Infinite = LT
+  compare Infinite Infinite = EQ
+  compare (Finite a) (Finite b) = compare a b
+
+instance nonemptyFoldable :: Foldable NonEmpty where
+  foldl f z (NonEmpty a b) = foldl f z (cons a b)
+  foldr f z (NonEmpty a b) = foldr f z (cons a b)
+  foldMap f (NonEmpty a b) = foldMap f (cons a b)
+
+data OneMore f a = OneMore a (f a)
+
+instance foldableOneMore :: Foldable f => Foldable (OneMore f) where
+   foldr ff z (OneMore a fa) = ff a lastz 
+    where lastz = foldr ff z fa
+   foldl ff z (OneMore a fa) = foldl ff firstz fa
+    where firstz = ff z a 
+   foldMap ff (OneMore a fa) = (ff a) <> (foldMap ff fa)
