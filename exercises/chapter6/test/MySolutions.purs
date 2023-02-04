@@ -2,7 +2,7 @@ module Test.MySolutions where
 
 import Prelude
 
-import Data.Array (concat, cons)
+import Data.Array (concat, cons, nub, nubEq)
 import Data.Foldable (class Foldable, foldMap, foldl, foldr)
 import Data.Generic.Rep (class Generic)
 import Data.Newtype (class Newtype, wrap, over2)
@@ -93,3 +93,15 @@ instance foldableOneMore :: Foldable f => Foldable (OneMore f) where
    foldl ff z (OneMore a fa) = foldl ff firstz fa
     where firstz = ff z a 
    foldMap ff (OneMore a fa) = (ff a) <> (foldMap ff fa)
+
+derive instance eqPoint :: Eq Point
+derive instance eqShape :: Eq Shape
+
+derive instance ordPoint :: Ord Point
+derive instance ordShape :: Ord Shape
+
+dedupShapes :: Array Shape -> Array Shape
+dedupShapes = nubEq
+
+dedupShapesFast :: Array Shape -> Array Shape
+dedupShapesFast = nub
