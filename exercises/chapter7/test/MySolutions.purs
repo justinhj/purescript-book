@@ -50,8 +50,26 @@ stateRegex = unsafeRegex "^[a-zA-Z][a-zA-Z]$" noFlags
 nonEmptyRegex :: Regex
 nonEmptyRegex = unsafeRegex "\\S+" noFlags
 
-validateAddressImproved :: Address -> V Errors Address
-validateAddressImproved a =
+validateAddressImproved' :: Address -> V Errors Address
+validateAddressImproved' a =
   address <$> matches "Street" nonEmptyRegex a.street
           <*> matches "City" nonEmptyRegex a.city
           <*> matches "State" stateRegex a.state
+
+-- As above but with applicative do syntax
+validateAddressImproved :: Address -> V Errors Address
+validateAddressImproved a = ado
+  street <- matches "Street" nonEmptyRegex a.street
+  city <- matches "City" nonEmptyRegex a.city
+  state <- matches "State" stateRegex a.state
+in address street city state
+
+
+data Tree a = Leaf | Branch (Tree a) a (Tree a)
+
+-- (Branch (Branch Leaf 8 Leaf) 42 Leaf)
+instance showTree :: (Show a) => Show (Tree a) where
+  show (Branch l a r) = "(Branch " <> (show l) <> " " <> (show a) <> " " <> (show r) <> ")"
+  show Leaf = "Leaf"
+
+derive instance eqTree :: Eq a => Eq (Tree a)
