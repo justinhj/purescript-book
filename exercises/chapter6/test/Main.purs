@@ -5,7 +5,6 @@ import Test.MySolutions
 
 import Data.Array (elem)
 import Data.Foldable (foldMap, foldl, foldr)
-import Data.Hashable (hash)
 import Data.List (List(..), (:))
 import Effect (Effect)
 import Partial.Unsafe (unsafePartial)
@@ -159,7 +158,6 @@ main =
       test "dedupShapesFast" do
         Assert.equal noDups
           $ dedupShapesFast withDups
-    {-  Move this block comment starting point to enable more tests
     suite "Multi Parameter Type Classes " do
       test "unsafeMaximum" do
         Assert.equal 42
@@ -261,7 +259,6 @@ main =
             $ hash
             $ Hour 14
 
--}
 runChapterExamples :: TestSuite
 runChapterExamples =
   test "Todo for book maintainers - Add tests for chapter examples" do

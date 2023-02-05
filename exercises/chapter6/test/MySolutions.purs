@@ -2,13 +2,16 @@ module Test.MySolutions where
 
 import Prelude
 
-import Data.Array (concat, cons, nub, nubEq)
-import Data.Foldable (class Foldable, foldMap, foldl, foldr)
+import Data.Array (cons, length, nub, nubByEq, nubEq)
+import Data.Char (toCharCode)
+import Data.Foldable (class Foldable, foldMap, foldl, foldr, maximum)
+import Data.Function (on)
 import Data.Generic.Rep (class Generic)
+import Data.Maybe (fromJust)
+import Data.Monoid (power)
 import Data.Newtype (class Newtype, wrap, over2)
-import Data.Ord (Ordering(..))
-import Data.Semigroup (append)
 import Data.Show.Generic (genericShow)
+import Data.String.CodeUnits (toCharArray)
 
 newtype Point
       = Point
@@ -105,3 +108,91 @@ dedupShapes = nubEq
 
 dedupShapesFast :: Array Shape -> Array Shape
 dedupShapesFast = nub
+
+unsafeMaximum :: Partial => Array Int -> Int
+unsafeMaximum arr = fromJust $ maximum arr
+
+class Monoid m <= Action m a where
+  act :: m -> a -> a
+
+newtype Multiply = Multiply Int
+
+derive newtype instance multShow :: Show Multiply
+derive newtype instance eqShow :: Eq Multiply
+
+instance semigroupMultiply :: Semigroup Multiply where
+  append (Multiply n) (Multiply m) = Multiply (n * m)
+
+instance monoidMultiply :: Monoid Multiply where
+  mempty = Multiply 1
+
+instance actionMultiplyInt :: Action Multiply Int where
+  act (Multiply m) n = m * n
+
+instance actionMultiplyString :: Action Multiply String where
+  act (Multiply s) n = power n s
+
+instance actionArray :: Action m a => Action m (Array a) where
+  act m arr = map (act m) arr 
+
+newtype Self m = Self m
+
+-- derive newtype instance eqSelf :: Eq Self _
+derive newtype instance showSelf :: Show m => Show (Self m)
+derive newtype instance eqSelf :: Eq m => Eq (Self m)
+
+instance actionSelf :: Monoid m => Action m (Self m) where
+  act m1 (Self m2) = Self (m1 <> m2)
+
+newtype HashCode = HashCode Int
+
+instance hashCodeEq :: Eq HashCode where
+  eq (HashCode a) (HashCode b) = a == b
+
+hashCode :: Int -> HashCode
+hashCode h = HashCode (h `mod` 65535)
+
+class Eq a <= Hashable a where
+  hash :: a -> HashCode
+
+combineHashes :: HashCode -> HashCode -> HashCode
+combineHashes (HashCode h1) (HashCode h2) = hashCode (73 * h1 + 51 * h2)
+
+hashEqual :: forall a. Hashable a => a -> a -> Boolean
+hashEqual = eq `on` hash
+
+derive newtype instance hashcodeShow :: Show HashCode
+
+instance hashInt :: Hashable Int where
+  hash = hashCode
+
+instance hashBoolean :: Hashable Boolean where
+  hash false = hashCode 0
+  hash true  = hashCode 1
+
+instance hashChar :: Hashable Char where
+  hash = hash <<< toCharCode
+
+instance hashArray :: Hashable a => Hashable (Array a) where
+  hash = foldl combineHashes (hashCode 0) <<< map hash
+
+instance hashString :: Hashable String where
+  hash = hash <<< toCharArray
+
+arrayHasDuplicates :: forall a. Hashable a => Array a -> Boolean
+arrayHasDuplicates arr = not ((length arr) == (length arr2))
+                         && not ((length arr) == (length arr3))
+  where
+    arr2 = nubByEq hashEqual arr
+    arr3 = nubEq arr
+
+newtype Hour = Hour Int
+
+instance eqHour :: Eq Hour where
+  eq (Hour n) (Hour m) = mod n 12 == mod m 12
+
+-- instance hashHour :: Hashable Hour where
+--   hash (Hour n) = hashCode n
+
+instance hashHour :: Hashable Hour where
+  hash (Hour h) = hash $ mod h 12
