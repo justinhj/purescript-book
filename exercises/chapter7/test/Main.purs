@@ -149,7 +149,6 @@ main =
         test "Eq - Not Equal" do
           Assert.expectFailure "not equal"
             $ Assert.equal tree Leaf
-    {-  Move this block comment starting point to enable more tests
       let
         leaf :: forall a. a -> Tree a
         leaf x = Branch Leaf x Leaf
@@ -192,6 +191,7 @@ main =
             $ runWriter
             $ traverse (\x -> tell [ x ])
             $ Branch (Branch (leaf 1) 2 (leaf 3)) 4 (Branch (leaf 5) 6 (leaf 7))
+    {-  Move this block comment starting point to enable more tests
       test "Exercise - traversePreOrder" do
         Assert.equal (1 .. 7)
           $ snd

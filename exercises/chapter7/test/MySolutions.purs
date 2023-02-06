@@ -6,11 +6,12 @@ import Control.Applicative (pure, apply)
 import Control.Apply (apply, lift2)
 import Data.AddressBook (Address, address)
 import Data.AddressBook.Validation (Errors, lengthIs, matches, nonEmpty)
+import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..))
 import Data.String.Regex (Regex)
 import Data.String.Regex.Flags (noFlags)
 import Data.String.Regex.Unsafe (unsafeRegex)
-import Data.Traversable (sequence)
+import Data.Traversable (class Traversable, sequence, traverse)
 import Data.Validation.Semigroup (V)
 
 addMaybe :: Maybe Int -> Maybe Int -> Maybe Int
@@ -73,3 +74,12 @@ instance showTree :: (Show a) => Show (Tree a) where
   show Leaf = "Leaf"
 
 derive instance eqTree :: Eq a => Eq (Tree a)
+
+derive instance treeFunctor :: Functor Tree
+derive instance treeFoldable :: Foldable Tree
+
+-- traverse :: forall a b m. Applicative m => (a -> m b) -> List a -> m (List b) 
+instance traverseTree :: Traversable Tree where
+  traverse f (Branch l a r) = Branch <$> (traverse f l) <*> (f a) <*> (traverse f r)
+  traverse _ _ = pure Leaf
+  sequence = traverse identity
