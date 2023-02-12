@@ -3,8 +3,8 @@ module Main where
 import Prelude
 
 import Data.AddressBook (PhoneNumber, examplePerson)
-import Data.AddressBook.Validation (Errors, validatePerson')
-import Data.Array (mapWithIndex, updateAt)
+import Data.AddressBook.Validation (Errors, Field(..), ValidationError(..), validatePerson')
+import Data.Array (find, mapWithIndex, updateAt)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Tuple (Tuple(..))
@@ -21,28 +21,47 @@ import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
+-- matchField :: ValidationError -> Field -> Boolean
+-- matchField (ValidationError _ ft) ft' | ft == ft' = true
+-- matchField _ _ = false
+
+matchError :: Field -> Errors -> Maybe ValidationError
+matchError f errs = find (\(ValidationError _ x) -> x == f) errs
+
+renderError :: Field -> Errors -> R.JSX
+renderError _ [] = D.div { }
+renderError field errors  =
+        case matchError field errors of
+          Just (ValidationError str _) -> 
+            D.div {
+              className: "alert alert-danger row", children: [ D.text str ]
+              }
+          Nothing -> D.div {
+              className: "", children: [ ]
+          }
+
 -- Note that there's a Purty formatting bug that
 -- adds an unwanted blank line
 -- https://gitlab.com/joneshf/purty/issues/77
 -- ANCHOR: renderValidationErrors
-renderValidationErrors :: Errors -> Array R.JSX
-renderValidationErrors [] = []
-renderValidationErrors xs =
-  let
-    renderError :: String -> R.JSX
-    renderError err = D.div {
-        className: "alert alert-danger row"
-        , children: [ D.text err ]
-        }
-  in
-    [ D.div_ (map renderError xs) ]
+-- renderValidationErrors :: Errors -> Array R.JSX
+-- renderValidationErrors [] = []
+-- renderValidationErrors xs =
+--   let
+--     renderError :: ValidationError -> R.JSX
+--     renderError (ValidationError err ft) = D.div {
+--         className: "alert alert-danger row"
+--         , children: [ D.text (err <> (show ft)) ]
+--         }
+--   in
+--     [ D.div_ (map renderError xs) ]
 -- ANCHOR_END: renderValidationErrors
 
 -- Helper function to render a single form field with an
 -- event handler to update
--- ANCHOR: formField
-formField :: String -> String -> String -> (String -> Effect Unit) -> R.JSX
-formField name placeholder value setValue =
+-- Also a bunch of errors lol
+formField :: Field -> Errors -> String -> String -> String -> (String -> Effect Unit) -> R.JSX
+formField ft errors name placeholder value setValue =
   D.label
     { className: "form-group row"
     , children:
@@ -67,13 +86,13 @@ formField name placeholder value setValue =
                     }
                 ]
             }
+          , renderError ft errors
         ]
     }
--- ANCHOR_END: formField
 
 mkAddressBookApp :: Effect (ReactComponent {})
 mkAddressBookApp =
-  reactComponent "AddressBookApp" \props -> R.do
+  reactComponent "AddressBookApp" \_ -> R.do
     -- `useState` takes a default initial value and returns the
     -- current value and a way to update the value.
     -- Consult react-hooks docs for a more detailed explanation of `useState`.
@@ -90,7 +109,7 @@ mkAddressBookApp =
       -- helper-function to render a single phone number at a given index
       renderPhoneNumber :: Int -> PhoneNumber -> R.JSX
       renderPhoneNumber index phone =
-        formField
+        formField (PhoneField phone."type") errors
           (show phone."type")
           "XXX-XXX-XXXX"
           phone.number
@@ -104,22 +123,21 @@ mkAddressBookApp =
       $ D.div
           { className: "container"
           , children:
-              renderValidationErrors errors
-                <> [ D.div
+                [ D.div
                       { className: "row"
                       , children:
                           [ D.form_
                               $ [ D.h3_ [ D.text "Basic Information" ]
-                                , formField "First Name" "First Name" person.firstName \s ->
+                                , formField FirstNameField errors "First Name" "First Name" person.firstName \s ->
                                     setPerson _ { firstName = s }
-                                , formField "Last Name" "Last Name" person.lastName \s ->
+                                , formField LastNameField errors "Last Name" "Last Name" person.lastName \s ->
                                     setPerson _ { lastName = s }
                                 , D.h3_ [ D.text "Address" ]
-                                , formField "Street" "Street" person.homeAddress.street \s ->
+                                , formField StreetField errors "Street" "Street" person.homeAddress.street \s ->
                                     setPerson _ { homeAddress { street = s } }
-                                , formField "City" "City" person.homeAddress.city \s ->
+                                , formField CityField errors "City" "City" person.homeAddress.city \s ->
                                     setPerson _ { homeAddress { city = s } }
-                                , formField "State" "State" person.homeAddress.state \s ->
+                                , formField StateField errors "State" "State" person.homeAddress.state \s ->
                                     setPerson _ { homeAddress { state = s } }
                                 , D.h3_ [ D.text "Contact Information" ]
                                 ]

@@ -50,7 +50,6 @@ main =
       files <- readdir outDir
       for_ files \f -> unlink $ Path.concat [ outDir, f ]
     runChapterExamples
-    {-  Move this block comment starting point to enable more tests
     test "concatenateFiles" do
       let
         inFoo = Path.concat [ inDir, "foo.txt" ]
@@ -84,6 +83,7 @@ main =
         absolutePath <- realpath $ Path.concat [ inDir ]
         chars <- countCharacters $ Path.concat [ absolutePath, "foof.txt" ]
         Assert.equal (Left ("ENOENT: no such file or directory, open '" <> absolutePath <> Path.sep <> "foof.txt'")) $ lmap message chars
+    {-  Move this block comment starting point to enable more tests
     test "writeGet" do
       let
         outFile = Path.concat [ outDir, "user.txt" ]

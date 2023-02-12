@@ -21,6 +21,8 @@ data PhoneType
 
 derive instance genericPhoneType :: Generic PhoneType _
 
+derive instance eqPhoneType :: Eq PhoneType
+
 instance showPhoneType :: Show PhoneType where
   show = genericShow
 
