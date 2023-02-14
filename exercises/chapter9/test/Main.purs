@@ -83,7 +83,6 @@ main =
         absolutePath <- realpath $ Path.concat [ inDir ]
         chars <- countCharacters $ Path.concat [ absolutePath, "foof.txt" ]
         Assert.equal (Left ("ENOENT: no such file or directory, open '" <> absolutePath <> Path.sep <> "foof.txt'")) $ lmap message chars
-    {-  Move this block comment starting point to enable more tests
     test "writeGet" do
       let
         outFile = Path.concat [ outDir, "user.txt" ]
@@ -135,7 +134,6 @@ main =
         actual <- recurseFiles file
         Assert.equal (Set.fromFoldable expected) $ Set.fromFoldable actual
 
--}
 runChapterExamples :: TestSuite
 runChapterExamples = do
   test "copyFile" do
