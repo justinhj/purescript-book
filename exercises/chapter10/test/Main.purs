@@ -25,7 +25,6 @@ main :: Effect Unit
 main =
   runTest do
     runChapterExamples
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Calling JavaScript" do
       suite "Exercise - volumeFn" do
         test "1 2 3" do
@@ -54,6 +53,7 @@ main =
                 , { real: 3.0, imag: 4.0 }
                 , { real: 5.0, imag: 6.0 }
                 ]
+    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Beyond Simple Types" do
       suite "Exercise - quadraticRoots" do
         let

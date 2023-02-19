@@ -64,6 +64,14 @@ getWithTimeout time url = do
     , delay (Milliseconds time) $> Nothing
     ]
 
+fileLines :: FilePath -> Aff (Maybe (Array String))
+fileLines f = do
+  contents <- readTextFile UTF8 f 
+  case contents of
+      "" -> pure Nothing
+      c -> 
+        pure $ Just $ split (Pattern "\n") c
+
 recurseFiles :: FilePath -> Aff (Array FilePath)
 recurseFiles file = do
   contents <- readTextFile UTF8 file
