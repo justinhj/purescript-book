@@ -53,7 +53,6 @@ main =
                 , { real: 3.0, imag: 4.0 }
                 , { real: 5.0, imag: 6.0 }
                 ]
-    {-  Move this block comment starting point to enable more tests
     suite "Exercise Group - Beyond Simple Types" do
       suite "Exercise - quadraticRoots" do
         let
@@ -79,6 +78,7 @@ main =
           { a: 3.0, b: -6.0, c: 3.0 }
           { real: 1.0, imag: 0.0 }
           { real: 1.0, imag: 0.0 }
+    {-  Move this block comment starting point to enable more tests
       suite "Exercise - toMaybe" do
         test "Nothing" do
           Assert.equal Nothing
