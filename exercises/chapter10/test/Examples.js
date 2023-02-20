@@ -120,13 +120,13 @@ export const addComplexBroken = a => b => {
   }
 };
 
-export const cumulativeSumsJson = cumulativeSumsBroken
+// export const cumulativeSumsJson = cumulativeSumsBroken
 // Try the non-broken version too
-//export const cumulativeSumsJson = cumulativeSums
+export const cumulativeSumsJson = cumulativeSums
 
-export const addComplexJson = addComplexBroken
+// export const addComplexJson = addComplexBroken
 // Try the non-broken version too
-//export const addComplexJson = addComplex
+export const addComplexJson = addComplex
 
 
 export const mapSetFooJson = j => {
