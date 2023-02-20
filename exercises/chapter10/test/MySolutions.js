@@ -53,6 +53,20 @@ export const quadraticRootsSetImpl = q => {
   }
 }
 
+export const quadraticRootsSafeJson = q => {
+  const disc = q.b * q.b - 4.0 * q.a * q.c;
+  if(disc >= 0.0) {
+    // Two real roots. (Same if discriminant is zero)
+    return Array.from(new Set([{real: (-q.b + Math.sqrt(disc)) / (2 * q.a), imag: 0.0},
+                   {real: (-q.b - Math.sqrt(disc)) / (2 * q.a), imag: 0.0}]));
+  } else {
+    // Two complex conjugate roots
+    const real = -q.b / (2.0 * q.a);
+    const imag = Math.sqrt(-disc) / (2 * q.a);
+    return Array.from(new Set([{real: real, imag: imag}, {real: real, imag: -imag}]));
+  }
+}
+
 export const toMaybeImpl = just => nothing => undefined$ => {
   if (undefined$ === undefined) {
     return nothing
