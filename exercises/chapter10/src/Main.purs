@@ -11,10 +11,10 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Alert (alert)
+import Effect.Alert (alert, confirm)
 import Effect.Console (log)
 import Effect.Exception (throw)
-import Effect.Storage (getItem, setItem)
+import Effect.Storage (getItem, setItem, removeItem)
 import React.Basic.DOM as D
 import React.Basic.DOM.Events (targetValue)
 import React.Basic.Events (handler, handler_)
@@ -103,6 +103,15 @@ mkAddressBookApp =
       renderPhoneNumbers :: Array R.JSX
       renderPhoneNumbers = mapWithIndex renderPhoneNumber person.phones
 
+      reset :: Effect Unit
+      reset = do
+         log "Reset!"
+         response <- confirm "Are you sure?"
+         if response then
+           removeItem "person"
+         else 
+           pure unit
+
       validateAndSave :: Effect Unit
       validateAndSave = do
         log "Running validators"
@@ -122,6 +131,19 @@ mkAddressBookApp =
                   { className: "btn-primary btn"
                   , onClick: handler_ validateAndSave
                   , children: [ D.text "Save" ]
+                  }
+              ]
+          }
+
+      resetButton :: R.JSX
+      resetButton = 
+        D.label 
+          { className: "form-group row col-form-label"
+          , children:
+              [ D.button
+                  { className: "btn-warning btn"
+                  , onClick: handler_ reset
+                  , children: [ D.text "Reset" ]
                   }
               ]
           }
@@ -153,6 +175,7 @@ mkAddressBookApp =
                       }
                   ]
                 <> [ saveButton ]
+                <> [ resetButton ]
           }
 
 processItem :: Json -> Either String Person
