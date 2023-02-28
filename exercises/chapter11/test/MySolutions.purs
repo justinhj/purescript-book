@@ -1,18 +1,22 @@
 module Test.MySolutions where
 
-import Data.Monoid.Additive
 import Prelude
 
 import Control.Bind (composeKleisli)
-import Control.Monad.Reader (Reader, ask, local, runReader)
-import Control.Monad.State (State, execState, modify)
-import Control.Monad.Writer (Writer, runWriter, tell)
-import Data.Array (cons, length, reverse)
+import Control.Monad.Except (ExceptT, throwError)
+import Control.Monad.Reader (Reader, ReaderT, ask, local, runReader, runReaderT)
+import Control.Monad.State (State, StateT, execState, get, modify, put)
+import Control.Monad.Writer (Writer, WriterT, execWriterT, lift, runWriter, tell)
+import Data.Array (length)
 import Data.Foldable (traverse_)
+import Data.Identity (Identity)
+import Data.Maybe (Maybe(..))
 import Data.Monoid (power)
-import Data.String (joinWith)
+import Data.Monoid.Additive (Additive(..))
+import Data.Newtype (unwrap)
+import Data.String (Pattern(..), drop, joinWith, stripPrefix, take)
 import Data.String.CodeUnits (toCharArray)
-import Data.Traversable (sequence, traverse)
+import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
 
 testParens :: String -> Boolean
@@ -29,7 +33,6 @@ testParens arr = execState (countB $ toCharArray arr) 0 == 0
           else
             count
 
-
 type Level = Int
 
 type Doc = Reader Level String
@@ -38,7 +41,6 @@ line :: String -> Doc
 line s = do
   ind <- ask
   pure $ (power "  " ind) <> s
-
 
 indent :: Doc -> Doc
 indent = local $ (+) 1
@@ -55,29 +57,76 @@ sumArrayWriter = traverse_ \n -> do
   pure unit
 
 collatz :: Int -> Tuple Int (Array Int)
-collatz n = report $ runWriter $ collatz'' n 
-  where 
-    report (Tuple _ w) = Tuple ((length w) - 1) w
+collatz n = case runWriter $ collatz' n of
+  (Tuple _ w) -> Tuple ((length w) - 1) w
 
--- This works but isn't what was asked for
--- collatz' :: Tuple Int (Array Int) -> Tuple Int (Array Int)
--- collatz' (Tuple n arr) | n == 1 = Tuple ((length arr) - 1) (reverse arr)
---                        | n `mod` 2 == 1 = collatz' (Tuple newval (cons newval arr))
---                           where newval = 3 * n + 1 
---                        | otherwise = collatz' (Tuple newval (cons newval arr))
---                           where newval = n / 2
-
-collatz'' :: Int -> Writer (Array Int) Int
-collatz'' n | n == 1 = do
+collatz' :: Int -> Writer (Array Int) Int
+collatz' n | n == 1 = do
             tell [1]
             pure 1
             | n `mod` 2 == 1 = do
                 tell [n]
-                collatz'' newval
+                collatz' newval
               where newval = 3 * n + 1
             | otherwise = do
                 tell [n]
-                collatz'' newval
+                collatz' newval
               where newval = n / 2
+
+safeDivide :: Int -> Int -> ExceptT String Identity Int
+safeDivide a b = do
+  if b == 0 then
+    throwError "Division by zero :(" 
+  else
+    pure $ a / b
+   
+type Errors = Array String
+type Log = Array String
+type Parser = StateT String (WriterT Log (ExceptT Errors Identity))
+
+-- stripPrefix
+string :: String -> Parser String
+string prefix = do
+  st <- get
+  lift $ tell ["The state is " <> st]
+  case stripPrefix (Pattern prefix) st of
+      Just rest -> do
+         put rest
+         pure prefix
+      Nothing -> lift $ lift $ throwError ["Could not parse"]
+
+split :: Parser String
+split = do
+  s <- get
+  lift $ tell ["The state is " <> s]
+  case s of
+    "" -> lift $ lift $ throwError ["Empty string"]
+    _ -> do
+      put (drop 1 s)
+      pure (take 1 s)
+
+
+-- Use the ReaderT and WriterT monad transformers to reimplement the document printing
+-- library which we wrote earlier using the Reader monad.
+
+-- Instead of using line to emit strings and cat to concatenate strings, use the Array
+-- String monoid with the WriterT monad transformer, and tell to append a line to the
+-- result. Use the same names as in the original implementation but ending with an 
+-- apostrophe (').
+
+type Level' = Int
+type Doc' = (WriterT (Array String) (ReaderT Level' Identity)) Unit
+
+line' :: String -> Doc'
+line' s = do
+  ind <- lift $ ask
+  tell $ [(power "  " ind) <> s]
+  pure unit
+
+indent' :: Doc' -> Doc'
+indent' = local $ (+) 1
+
+render' :: Doc' -> String
+render' doct = joinWith "\n" $ unwrap $ runReaderT (execWriterT doct) 0
 
 
