@@ -3,11 +3,12 @@ module Test.MySolutions where
 import Prelude
 
 import Control.Bind (composeKleisli)
-import Control.Monad.Except (ExceptT, throwError)
+import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (Reader, ReaderT, ask, local, runReader, runReaderT)
 import Control.Monad.State (State, StateT, execState, get, modify, put)
 import Control.Monad.Writer (Writer, WriterT, execWriterT, lift, runWriter, tell)
 import Data.Array (length)
+import Data.Either (Either(..))
 import Data.Foldable (traverse_)
 import Data.Identity (Identity)
 import Data.Maybe (Maybe(..))
@@ -88,12 +89,12 @@ type Parser = StateT String (WriterT Log (ExceptT Errors Identity))
 string :: String -> Parser String
 string prefix = do
   st <- get
-  lift $ tell ["The state is " <> st]
+  tell ["The state is " <> st]
   case stripPrefix (Pattern prefix) st of
       Just rest -> do
          put rest
          pure prefix
-      Nothing -> lift $ lift $ throwError ["Could not parse"]
+      Nothing -> throwError ["Could not parse"]
 
 split :: Parser String
 split = do
@@ -115,7 +116,8 @@ split = do
 -- apostrophe (').
 
 type Level' = Int
-type Doc' = (WriterT (Array String) (ReaderT Level' Identity)) Unit
+type Doc' = WriterT (Array String) (ReaderT Level' (ExceptT String Identity)) Unit
+-- type Doc' = WriterT (Array String) (ReaderT Level' Identity) Unit
 
 line' :: String -> Doc'
 line' s = do
@@ -123,10 +125,28 @@ line' s = do
   tell $ [(power "  " ind) <> s]
   pure unit
 
-indent' :: Doc' -> Doc'
-indent' = local $ (+) 1
+-- indent' = local $ (+) 1
 
+-- Return an error should indent be over 3
+
+indent' :: Doc' -> Doc'
+indent' doc = do
+  ind <- ask
+  if ind < 3 then
+    (local $ (+) 1) doc
+  else
+    throwError "Too much indent"
+
+-- This does a bit more than the exercise in the book. I've added ExceptT to the 
+-- Doc' type, the render function now has to unwrap the response and handle the 
+-- error case. Errors are thrown if the indent reaches 3.
 render' :: Doc' -> String
-render' doct = joinWith "\n" $ unwrap $ runReaderT (execWriterT doct) 0
+render' doct = 
+  let 
+      out = unwrap $ runExceptT $ runReaderT (execWriterT $ doct) 0
+  in
+    case out of 
+        Right arr -> joinWith "\n" arr
+        Left err -> "Error! " <> err
 
 
