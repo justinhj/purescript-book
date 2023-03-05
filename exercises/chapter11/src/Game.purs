@@ -30,6 +30,12 @@ describeRoom = do
     Coords { x: 0, y: 1 } -> tell (L.singleton "You are in a clearing.")
     _ -> tell (L.singleton "You are deep in the forest.")
 
+cheat :: Game Unit
+cheat = do
+  _ <- pickUp Candle
+  _ <- pickUp Matches
+  pure unit
+
 -- ANCHOR: pickup_start
 pickUp :: GameItem -> Game Unit
 pickUp item = do

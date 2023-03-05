@@ -140,7 +140,6 @@ main =
           Assert.equal (Left ["Could not parse","Could not parse"])
             $ runParser asOrBs "foobar"
 
-    {-  Move this block comment starting point to enable more tests
     suite "Exercises Group - The RWS Monad" do
       let
         runGame :: Game Unit -> RWSResult GameState Unit (List String)
@@ -164,5 +163,3 @@ main =
         runCheatTest "move and cheat" $ move 0 (-1) *> move 0 1 *> cheat
         runCheatTest "pickup matches and cheat" $ pickUp Matches *> cheat
         runCheatTest "pickup all, move, and cheat" $ pickUp Matches *> move 0 1 *> pickUp Candle *> cheat
-
--}
