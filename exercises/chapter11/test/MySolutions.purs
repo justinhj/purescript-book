@@ -2,12 +2,14 @@ module Test.MySolutions where
 
 import Prelude
 
+import Control.Alt ((<|>))
+import Control.Alternative (guard)
 import Control.Bind (composeKleisli)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (Reader, ReaderT, ask, local, runReader, runReaderT)
 import Control.Monad.State (State, StateT, execState, get, modify, put)
 import Control.Monad.Writer (Writer, WriterT, execWriterT, lift, runWriter, tell)
-import Data.Array (length)
+import Data.Array (fold, length, some)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
 import Data.Identity (Identity)
@@ -15,7 +17,7 @@ import Data.Maybe (Maybe(..))
 import Data.Monoid (power)
 import Data.Monoid.Additive (Additive(..))
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), drop, joinWith, stripPrefix, take)
+import Data.String (Pattern(..), drop, joinWith, stripPrefix, take, toLower)
 import Data.String.CodeUnits (toCharArray)
 import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
@@ -149,4 +151,11 @@ render' doct =
         Right arr -> joinWith "\n" arr
         Left err -> "Error! " <> err
 
+asFollowedByBs :: Parser String
+asFollowedByBs = do
+  as <- some $ string "a"
+  bs <- some $ string "b"
+  pure $ fold $ as <> bs 
 
+asOrBs :: Parser String
+asOrBs = fold <$> some (string "a" <|> string "b") 
