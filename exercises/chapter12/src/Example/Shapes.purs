@@ -13,8 +13,7 @@ import Partial.Unsafe (unsafePartial)
 -- ANCHOR: translate
 translate
   :: forall r
-   . Number
-  -> Number
+   . Number -> Number
   -> { x :: Number, y :: Number | r }
   -> { x :: Number, y :: Number | r }
 translate dx dy shape = shape

@@ -2,10 +2,9 @@ module Example.Rectangle where
 
 import Prelude
 
-import Effect (Effect)
 import Data.Maybe (Maybe(..))
-import Graphics.Canvas (rect, fillPath, setFillStyle, getContext2D,
-                        getCanvasElementById)
+import Effect (Effect)
+import Graphics.Canvas (closePath, fillPath, getCanvasElementById, getContext2D, lineTo, moveTo, rect, setFillStyle, setStrokeStyle)
 import Partial.Unsafe (unsafePartial)
 
 -- ANCHOR: main
@@ -27,3 +26,13 @@ main = void $ unsafePartial do
     , height: 100.0
     }
 -- ANCHOR_END: fillPath
+
+  setFillStyle ctx "rgba(0, 0, 255, 0.5)"
+
+  fillPath ctx $ do
+    moveTo ctx 250.0 250.0
+    lineTo ctx 370.0 250.0
+    lineTo ctx 370.0 370.0
+    lineTo ctx 250.0 370.0
+    lineTo ctx 250.0 250.0
+    closePath ctx
